@@ -1,23 +1,25 @@
 import { Context, InlineKeyboard } from "grammy";
 import {InlineKeyboardButton} from "@grammyjs/types"
-import {GroupID, VenID} from "./vars";
+import {GroupID, VenID, ChannelID} from "./vars";
 import {bot} from "./index";
 import fs from "fs";
 import mysql from "mysql2";
 import { ReportError } from "./Error";
 import { users } from "./interface";
 
-bot.on(":new_chat_members", ctx => Welcome(ctx));
-
 
 export const groups = [
     {
-        id: GroupID,
-        name: "***REMOVED***"
+        name: "***REMOVED***",
+        id: ChannelID
+    },
+    {
+        name: "***REMOVED*** please",
+        id: GroupID
     }
 ]
 
-const Welcome = async (ctx: Context) => {
+export const Welcome = async (ctx: Context) => {
     if(ctx === undefined) return;
     if(ctx.message === undefined) return;
     if(ctx.message.from === undefined) return;
@@ -208,3 +210,9 @@ export const dat = async (Befehl: string): Promise<mysql.RowDataPacket[]> =>
         return result;
     });
 }
+
+export const Rules = async (e: Context) => {
+    const inlineKeyboard = new InlineKeyboard()
+    .url("📋 Read the rules", "https://t.me/***REMOVED***").row();
+    e.reply(`Please read the following help here: https://telegra.ph/***REMOVED***-Help-01-07`, {reply_to_message_id: e.message?.message_id, reply_markup: inlineKeyboard}).catch(err => ReportError(err));
+};

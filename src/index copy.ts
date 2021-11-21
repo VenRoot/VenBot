@@ -1,20 +1,19 @@
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({path: path.join(process.cwd(), ".env")});
-console.log(process.env.BOT_TOKEN);
-if(process.env.BOT_TOKEN === undefined || process.env.BOT_TOKEN.length == 0) throw "No Bot Token";
 import {Bot, Context, BotError, InlineKeyboard, InputFile} from "grammy";
 import s from "node-schedule";
-
-export const bot = new Bot(process.env.BOT_TOKEN);
-
-import {uwu, Pog, owo, Distract, Doubt} from "./fun";
-import {allow, groups, Rules, Welcome} from "./Group";
+import dotenv from "dotenv";
+import {Pog, Distract, Doubt} from "./fun";
+import {allow, groups, Rules} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
 import {getArgs} from "./core";
 import {Report, getList} from "./User";
 import { ReportError } from "./Error";
+dotenv.config({path: "../.env"});
+
+console.log(process.env);
+
+if(process.env.BOT_TOKEN === undefined) throw "No BotToken";
+export const bot = new Bot(process.env.BOT_TOKEN);
 
 bot.catch(async (err) => {
     console.error(err);
@@ -24,9 +23,7 @@ bot.catch(async (err) => {
 
 
 
-bot.start({drop_pending_updates: true});
-
-bot.on(":new_chat_members", ctx => Welcome(ctx));
+bot.start();
 
 bot.command("start", e => Rules(e));
 bot.command("help", e => Help(e));
@@ -43,7 +40,6 @@ bot.command("doubt", e => Doubt(e));
 bot.command("getArgs", async e => e.reply(await getArgs(e)?.join(" | ") || "Keine Args"));
 
 bot.command("list", e => getList(e));
-bot.command("owo", e => owo(e));
 bot.command("ping", e => e.reply("pong"));
 
 bot.command(["pog", "Pog", "poggers", "Poggers"], e => Pog(e));
@@ -53,7 +49,6 @@ bot.command("warn", e => warn(e));
 bot.command("donate", e => donate(e));
 bot.command("uptime", e => e.reply(`The bot has been running for ${Math.floor(process.uptime() / 60)} minutes (${process.uptime()} milliseconds).`));
 
-bot.command("uwu", e => uwu(e));
 
 const Help = async (e: Context) => {
     if(e.chat === undefined) return;
@@ -66,17 +61,10 @@ const Help = async (e: Context) => {
 //Schedule every 12 hours
 
 process.on('uncaughtException', err => {
-    ReportError(JSON.stringify(err));
-  });
+  ReportError(JSON.stringify(err));
+});
   
-  s.scheduleJob('0 */12 * * *', () => {
-    const markup = new InlineKeyboard()
-    .url("Join now!", "https://t.me/***REMOVED***").row();
-    let msg = "You can always join our group to discuss about your favourite ***REMOVED***, comment posts and finding more fluffs by clicking here";
-     bot.api.sendMessage(groups[0].id, msg, {reply_markup: markup});
-  });
-  
-  s.scheduleJob('0 */6 * * *', () =>{
-    let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
-    bot.api.sendMessage(groups[1].id, msg);
-  });
+s.scheduleJob('0 */6 * * *', () =>{
+  let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
+  bot.api.sendMessage(groups[1].id, msg);
+});

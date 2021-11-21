@@ -1,7 +1,6 @@
 import {Context} from "grammy"
 import { bot } from ".";
 import { ReportError } from "./Error";
-import {} from "."
 import { dat } from "./Group";
 import {add, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInWeeks, differenceInYears, isBefore} from "date-fns";
 import { getArgs, getWarnList, or, ParseDate, setWarnList, UserOrName } from "./core";
