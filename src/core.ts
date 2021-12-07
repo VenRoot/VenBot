@@ -4,6 +4,7 @@ import fs from "fs";
 import { add, differenceInYears } from "date-fns";
 import { bot } from ".";
 import { GroupID } from "./vars";
+import path from "path";
 
 export const getArgs = (e: Context) => {
     if(e.message === undefined) return null;
@@ -17,9 +18,10 @@ export const or = (
     ...items: Array<{diff: unknown, unit: string}>
 ) => items.find(value => value.diff)
 
-export const getWarnList = async () => await JSON.parse(fs.readFileSync("./warn.JSON", "utf8")) as WarnList[];
-export const setWarnList = (list: WarnList[]) => fs.writeFileSync("./warn.JSON", JSON.stringify(list));
+export const getWarnList = async () => await JSON.parse(fs.readFileSync(path.join(__dirname, "..", "warn.JSON"), "utf8")) as WarnList[];
+export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "warn.JSON"), JSON.stringify(list));
 
+export const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 export const ParseDate = async (date: string) =>
 {

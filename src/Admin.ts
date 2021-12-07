@@ -1,5 +1,5 @@
 import {Context} from "grammy"
-import { bot } from ".";
+import { bot, log } from ".";
 import { ReportError } from "./Error";
 import { dat } from "./Group";
 import {add, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInWeeks, differenceInYears, isBefore} from "date-fns";
@@ -58,7 +58,7 @@ const checkAdmin = async (e: Context) =>
     let Admins = await getAdmins(e).catch(i =>ReportError(i));
     if(Admins === undefined) throw ReportError(e);
     let adminFound = false;
-    //console.log("Nachricht von ");console.log(e.update.message.from);
+    log("Nachricht von ", e.message.from);
     for (var i = 0; i < Admins.length; i++) {
       //console.log("Admin "+i); console.log(Admins[i].user);
 

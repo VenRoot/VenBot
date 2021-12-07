@@ -1,7 +1,7 @@
 import { getWarnList, UserOrName } from "./core";
 import {Context, InlineKeyboard} from "grammy";
 import { ReportError } from "./Error";
-import { bot } from ".";
+import { bot, log } from ".";
 
 export const Warnings = async (e: Context) =>
 {
@@ -67,12 +67,14 @@ export const Report = async (e: Context) =>
   //bot.telegram.sendMessage(e.message.from.first_name, "Hallo");
   let Admins = (await e.getChatAdministrators()).filter(i => i.user.is_bot == false);
 
-  console.log(Admins);
+  log(Admins);
+  log(await e.getChatAdministrators());
   for (var i = 0; i < Admins.length; i++) {
     
     bot.api.sendMessage(Admins[i].user.id, text, {reply_markup: inlineKeyboard}).catch(i => ReportError(i));
     bot.api.forwardMessage(Admins[i].user.id, chat.id, e.message.message_id).catch(i => ReportError(i));
   }
+  if(Admins.length == 0) return e.reply("No admins in this chat!");
   e.reply("A report to the admins was sent successfully!");
   return true;
 }

@@ -12,6 +12,5 @@ process.on('uncaughtException', (err: Context) => {
 export const ReportError = (e: Context|string) =>
 {
   console.warn("Error wird geworfen", e);
-  console.debug(process.env);
   bot.api.sendMessage(VenID, JSON.stringify(e));
 }
