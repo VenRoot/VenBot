@@ -39,6 +39,7 @@ bot.on(":new_chat_members", ctx => Welcome(ctx));
 
 //@ts-ignore
 import * as pack from "../package.json";
+import { GroupName, SchedeuledMsg } from "./vars";
 
 bot.api.setMyCommands([
   { command: "start", description: "Start the bot" },
@@ -105,9 +106,8 @@ process.on('uncaughtException', err => {
   
   s.scheduleJob('0 */12 * * *', () => {
     const markup = new InlineKeyboard()
-    .url("Join now!", "https://t.me/***REMOVED***").row();
-    let msg = "You can always join our group to discuss about your favourite ***REMOVED***, comment posts and finding more fluffs by clicking here";
-     bot.api.sendMessage(groups[0].id, msg, {reply_markup: markup});
+    .url("Join now!", `https://t.me/${GroupName}`).row();
+     bot.api.sendMessage(groups[0].id, SchedeuledMsg, {reply_markup: markup});
   });
   
   s.scheduleJob('0 */6 * * *', () =>{

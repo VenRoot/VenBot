@@ -3,7 +3,7 @@ import { WarnList } from "./interface";
 import fs from "fs";
 import { add, differenceInYears } from "date-fns";
 import { bot } from ".";
-import { GroupID } from "./vars";
+import { GroupID } from "./vars.js";
 import path from "path";
 
 export const getArgs = (e: Context) => {

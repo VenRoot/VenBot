@@ -1,6 +1,6 @@
 import { Context, InlineKeyboard } from "grammy";
 import {InlineKeyboardButton} from "@grammyjs/types"
-import {GroupID, VenID, ChannelID} from "./vars";
+import {GroupID, VenID, ChannelID, ChannelName, GroupName, BotName, RulesURL} from "./vars.js";
 import {bot, log} from "./index";
 import fs from "fs";
 import mysql from "mysql2";
@@ -11,19 +11,14 @@ import path from "path";
 import mariadb from "mariadb";
 import { UserOrName } from "./core";
 
-
 export const groups = [
     {
-        name: "***REMOVED***",
+        name: ChannelName,
         id: ChannelID
     },
     {
-        name: "***REMOVED*** please",
+        name: GroupName,
         id: GroupID
-    },
-    {
-        name:" ***REMOVED*** test",
-        id: -1001409067301
     }
 ]
 
@@ -39,7 +34,7 @@ export const Welcome = async (ctx: Context) => {
     }
     
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", "https://t.me/***REMOVED***").row()
+    .url("📋 Read the rules", `https://t.me/${BotName}`).row()
     .text("✅ I accept the rules", "accept").row();
 
     bot.api.restrictChatMember(groups[1].id, ctx.message.from.id, {can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_send_polls: false});
@@ -144,7 +139,7 @@ bot.callbackQuery("accept", async ctx => {
     }
 
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", "https://t.me/***REMOVED***").row();
+    .url("📋 Read the rules", `https://t.me/${BotName}`).row();
     const uname = ctx.callbackQuery.from.username;
     const fname = ctx.callbackQuery.from.first_name;
     bot.api.restrictChatMember(groups[1].id, ctx?.message?.from?.id || ctx.callbackQuery.from.id, {can_send_messages: true, can_send_media_messages: true, can_send_other_messages: true, can_send_polls: true});
@@ -154,7 +149,7 @@ bot.callbackQuery("accept", async ctx => {
 
 export const allow = async (e: Context, priv: boolean, button: boolean) => {
     const markup = new InlineKeyboard();
-    markup.url("📋 Read the rules", "https://t.me/***REMOVED***");
+    markup.url("📋 Read the rules", `https://t.me/${BotName}`);
     let _users = await dat("SELECT id from accepted") as number[];
     let uid:number = 0, mid:number|undefined, uname:string|undefined, fname:string|undefined;
 
@@ -247,6 +242,6 @@ export const dat = async (Befehl: string, params?: any[]) =>
 
 export const Rules = async (e: Context) => {
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", "https://t.me/***REMOVED***").row();
-    e.reply(`Please read the following help here: ***REMOVED***`, {reply_to_message_id: e.message?.message_id, reply_markup: inlineKeyboard}).catch(err => ReportError(err));
+    .url("📋 Read the rules", `https://t.me/${BotName}`).row();
+    e.reply(`Please read the following help here: ${RulesURL}`, {reply_to_message_id: e.message?.message_id, reply_markup: inlineKeyboard}).catch(err => ReportError(err));
 };

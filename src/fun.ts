@@ -4,7 +4,7 @@ import { ReportError } from "./Error";
 import {random, UserOrName} from "./core";
 const mediapath = path.join(__dirname, "..", "media");
 import {bot} from "./index";
-import { VenID, phrases } from "./vars";
+import { VenID, phrases } from "./vars.js";
 
 export const Distract = (e: Context) => e.replyWithAnimation(new InputFile(path.join(mediapath, "distract.gif")));
 export const rr = (e: Context) => e.replyWithAnimation(new InputFile(path.join(mediapath, "rr.gif")));

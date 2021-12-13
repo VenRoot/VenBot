@@ -1,6 +1,6 @@
 import { Context } from "grammy";
 import {bot} from "./index";
-import {GroupID, VenID} from "./vars";
+import {GroupID, VenID} from "./vars.js";
 import fs from "fs";
 
 process.on('uncaughtException', (err: Context) => {
