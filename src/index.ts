@@ -17,7 +17,8 @@ log("Starting Bot");
 export const bot = new Bot(process.env.BOT_TOKEN);
 
 import {uwu, Pog, owo, Distract, Doubt, rr} from "./fun";
-import {allow, groups, Rules, Welcome} from "./Group";
+import { Channels, Groups } from "./vars";
+import {allow, Rules, Welcome} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
 import {getArgs} from "./core";
@@ -107,10 +108,12 @@ process.on('uncaughtException', err => {
   s.scheduleJob('0 */12 * * *', () => {
     const markup = new InlineKeyboard()
     .url("Join now!", `https://t.me/${GroupName}`).row();
-     bot.api.sendMessage(groups[0].id, SchedeuledMsg, {reply_markup: markup});
+     bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
   });
   
   s.scheduleJob('0 */6 * * *', () =>{
     let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
-    bot.api.sendMessage(groups[1].id, msg);
+    bot.api.sendMessage(Groups[0].id, msg);
   });
+
+
