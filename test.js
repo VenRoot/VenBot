@@ -30,12 +30,3 @@ const dat = async (Befehl, params) =>
         if(con) con.release();
     }
 }
-
-(async () => {
-    const allUsers = await dat('SELECT * FROM accepted');
-    allUsers.forEach(({username, id}) => {
-        console.log(`${username} (${id})`);
-    });
-})();
-
-

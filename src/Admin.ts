@@ -26,7 +26,7 @@ export const Ban = async (e: Context, global: boolean) =>
     const userid = e.message.reply_to_message.from.id;
     const message_id = e.message.reply_to_message.message_id;
     
-    dat(`INSERT INTO banned_users VALUES("${user}", "${userid}", "${chat.id}")`).catch(i => {ReportError(i); });
+    // dat(`INSERT INTO banned_users VALUES("${user}", "${userid}", "${chat.id}")`).catch(i => {ReportError(i); });
     const p = path.join(__dirname, "..", "data", "banned.json");
     if(!fs.existsSync(p)) fs.writeFileSync(p, JSON.stringify([]));
     const banned = JSON.parse(fs.readFileSync(p).toString()) as Banned_User[];
