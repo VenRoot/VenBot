@@ -14,7 +14,7 @@ if(process.env.PRODUCTION === "TRUE")
 
 log("Starting Bot");
 
-export const bot = new Bot(process.env.BOT_TOKEN);
+export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
 import {uwu, Pog, owo, Distract, Doubt, rr} from "./fun";
 import { Channels, Groups } from "./vars";
@@ -104,16 +104,21 @@ process.on('uncaughtException', err => {
 	console.error(err);
     ReportError(JSON.stringify(err));
   });
+
+  if(process.env.PRODUCTION == "TRUE")
+  {
+    s.scheduleJob('0 */12 * * *', () => {
+      const markup = new InlineKeyboard()
+      .url("Join now!", `https://t.me/${GroupName}`).row();
+       bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
+    });
+    
+    s.scheduleJob('0 */6 * * *', () =>{
+      let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
+      bot.api.sendMessage(Groups[0].id, msg);
+    });
+  }
   
-  s.scheduleJob('0 */12 * * *', () => {
-    const markup = new InlineKeyboard()
-    .url("Join now!", `https://t.me/${GroupName}`).row();
-     bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
-  });
   
-  s.scheduleJob('0 */6 * * *', () =>{
-    let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
-    bot.api.sendMessage(Groups[0].id, msg);
-  });
 
 
