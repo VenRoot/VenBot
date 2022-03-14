@@ -6,24 +6,18 @@ import { bot } from ".";
 import { GroupID } from "./vars.js";
 import path from "path";
 
-export const getArgs = (e: Context) => {
-    if(e.message === undefined) return null;
-    if(e.message.text === undefined) return null;
-    
-    
-    return e.message.text.split(" ");
-}
+export const getArgs = (e: Context) => e?.message?.text?.split(" ");
 
 export const or = (
-    ...items: Array<{diff: unknown, unit: string}>
+    ...items: Array<{diff: number, unit: string}>
 ) => items.find(value => value.diff)
 
-export const getWarnList = async () => await JSON.parse(fs.readFileSync(path.join(__dirname, "..", "warn.JSON"), "utf8")) as WarnList[];
-export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "warn.JSON"), JSON.stringify(list));
+export const getWarnList = () => JSON.parse(fs.readFileSync(path.join(__dirname, "..", "warn.json"), "utf8")) as WarnList[];
+export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "warn.json"), JSON.stringify(list));
 
 export const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-export const ParseDate = async (date: string) =>
+export const ParseDate = async (date: string, chat: number) =>
 {
     if(date === undefined) throw null;
     let found = false;
@@ -37,11 +31,11 @@ export const ParseDate = async (date: string) =>
     if(date.endsWith("M")) time = add(time, { months: parseInt(date.substring(0, date.length - 1)) });
     if(date.endsWith("Y")) time = add(time, { years: parseInt(date.substring(0, date.length - 1)) });
 
-    if(differenceInYears(time, new Date()) > 1) bot.api.sendMessage(GroupID,"⚠️⚠️If user is banned/restricted for more than 366 days or less than 30 seconds from the current time they are considered to be banned/restricted forever⚠️⚠️");
+    if(differenceInYears(time, new Date()) > 1) bot.api.sendMessage(chat,"⚠️⚠️If user is banned/restricted for more than 366 days or less than 1 minute from the current time they are considered to be banned/restricted forever⚠️⚠️");
     return time;
 }
 
-export const UserOrName = (Name: string, Username?: string) => Username === undefined ? Name : "@"+Username;
+export const UserOrName = (Name: string, Username?: string) => Username ? "@"+Username : Name;
 
 const validTime = 
 [
