@@ -16,15 +16,14 @@ log("Starting Bot");
 
 export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
-import {uwu, Pog, owo, Distract, Doubt, rr} from "./fun";
-import { Channels, Groups } from "./vars";
-import {allow, Rules, Welcome} from "./Group";
+import {uwu, Pog, owo, Distract, Doubt, rr, SuckySucky, Bish} from "./fun";
+import { Channels, Groups, VenID } from "./vars";
+import {allow, Rules, Welcome, Goodbye} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
 import {getArgs} from "./core";
-import {Report, getList} from "./User";
+import {Report, Warnings} from "./User";
 import { ReportError } from "./Error";
-import {SuckySucky} from "./fun";
 
 bot.catch(async (err) => {
     console.error(err);
@@ -34,13 +33,17 @@ bot.catch(async (err) => {
 
 //Send a message after the bot is started
 
-bot.start({drop_pending_updates: true});
+bot.start({drop_pending_updates: true, onStart: () => {
+  bot.api.sendMessage(VenID, "Bot started");
+}});
 
 bot.on(":new_chat_members", ctx => Welcome(ctx));
 
+bot.on(":left_chat_member", ctx => Goodbye(ctx));
+
 //@ts-ignore
 import * as pack from "../package.json";
-import { GroupName, SchedeuledMsg } from "./vars";
+import {SchedeuledMsg } from "./vars";
 
 bot.api.setMyCommands([
   { command: "start", description: "Start the bot" },
@@ -77,6 +80,7 @@ bot.command("owo", e => owo(e));
 bot.command(["pog", "Pog", "poggers", "Poggers"], e => Pog(e));
 bot.command("uwu", e => uwu(e));
 bot.command("sucky", e => SuckySucky(e));
+bot.command("why", e => Bish(e));
 
 
 bot.command("ban", e => Ban(e, false));
@@ -84,9 +88,10 @@ bot.command("uptime", e => e.reply(`The bot has been running for ${Math.floor(pr
 bot.command("mute", e => Mute(e));
 bot.command("unmute", e => Unmute(e));
 bot.command("getArgs", async e => e.reply(await getArgs(e)?.join(" | ") || "Keine Args"));
-bot.command("list", e => getList(e));
+// bot.command("list", e => getList(e));
 bot.command("ping", e => e.reply("pong"));
 bot.command("warn", e => warn(e));
+bot.command("warnings", e => Warnings(e));
 
 
 //bot.command("unban", e => Unban(e));
@@ -109,7 +114,7 @@ process.on('uncaughtException', err => {
   {
     s.scheduleJob('0 */12 * * *', () => {
       const markup = new InlineKeyboard()
-      .url("Join now!", `https://t.me/${GroupName}`).row();
+      .url("Join now!", Groups[0].link).row();
        bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
     });
     

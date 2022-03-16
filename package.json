@@ -1,6 +1,6 @@
 {
     "name": "venbot",
-    "version": "1.0.2",
+    "version": "1.0.9_BETA",
     "description": "",
     "main": "index.js",
     "dependencies": {

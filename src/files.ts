@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { bot } from ".";
 import { user } from "./interface";
 import { Groups } from "./vars";
 
@@ -12,6 +13,8 @@ export const getFile = (file: "pending" | "accepted") =>
     
     return JSON.parse(fs.readFileSync(p, "utf8")) as user[];
 }
+
+export const setFile = (file: "pending" | "accepted", data: user[]) => fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(data));
 
 export const User = 
 {
@@ -45,13 +48,26 @@ export const User =
     {
         const users = getFile(file);
         const Group = Groups.find(i => i.id === chatid);
-        if(Group === undefined) return null;
+        if(Group === undefined) {console.error("No group"); return null; }
         let user = users.find(i => i.userid === id && i.groupid === chatid);
+        if(user)
+        {
+            // Remove the user from the pending list
+            const index = users.indexOf(user);
+            if(index > -1) users.splice(index, 1);
+            
+            //Try to remove the old welcome message
+            bot.api.deleteMessage(chatid, user.msgid).catch(e => console.error(e));
+            
+
+            users.push({ userid: id, groupid: chatid, group: Group!.name, msgid: msgid});
+            setFile(file, users);
+        }
         if(user === undefined)
         {
             //Check if 
             users.push({ userid: id, groupid: chatid, group: Group!.name, msgid: msgid});
-            fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(users));
+            setFile(file, users);
         }
     },
     remove: (id: number, chatid: number, file: "pending" | "accepted") =>
@@ -61,7 +77,7 @@ export const User =
         if(user === undefined) return null;
 
         users.splice(users.indexOf(user), 1);
-        fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(users));
+        setFile(file, users);
     }
 }
 

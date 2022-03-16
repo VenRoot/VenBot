@@ -26,7 +26,7 @@ export interface Banned_User
     Message_ID?: number;
 }
 
-export type TGroups = "Yiff me please~" | "Futa/Herm Yiff";
+export type TGroups = "Yiff me please~" | "Futa/Herm Yiff" | "Yiff me please~ beta";
 
 export interface WarnList
 {
@@ -38,4 +38,10 @@ export interface WarnList
         Exprieable: boolean
     }[];
     kicks: number;
+}
+
+export interface MuteList
+{
+    userid: number;
+    
 }

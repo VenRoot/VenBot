@@ -1,8 +1,8 @@
-import { getWarnList, UserOrName } from "./core";
+import { getList, UserOrName } from "./core";
 import {Context, InlineKeyboard} from "grammy";
 import { ReportError } from "./Error";
 import { bot, log } from ".";
-import { GroupName } from "./vars";
+import { WarnList } from "./interface";
 
 export const Warnings = async (e: Context) =>
 {
@@ -12,7 +12,7 @@ export const Warnings = async (e: Context) =>
 
   let text = `Warnings for ${User}: \n\n`;
 
-  const warnlist = await getWarnList();
+  const warnlist = getList("warn") as WarnList[];
   const userwarn_ = warnlist.filter(i => i.userid == e.message?.from?.id)
   if(userwarn_.length == 0) return e.reply(`You have no warnings!`);
   const userwarn = userwarn_[0];
@@ -60,7 +60,7 @@ export const Report = async (e: Context) =>
     text += `Message: ${e.message.reply_to_message.text}\n`;
 
     const inlineKeyboard = new InlineKeyboard()
-    .url("Go to message", `https://t.me/${GroupName}/${e.message.message_id}`).row();
+    .url("Go to message", `${chat.invite_link}/${e.message.message_id}`).row();
 
     // let text = `REPORT!\n User: @${e.message.from.username} | ${e.update.message.from.id}\n\nREPORTED USER\n\nUSERNAME: @${e.update.message.reply_to_message.from.username}\nID: ${e.update.message.reply_to_message.from.id}\nMESSAGE:${e.update.message.reply_to_message.text}\n\nSee the message here: https://t.me/c/${chat.id.toString().slice(4)}/${e.message.message_id}`;
     //     let text = `@${e.update.message.from.username} with the User ID ${e.update.message.from.id} reported following message by @${e.update.message.reply_to_message.from.username} with the ID ${e.update.message.reply_to_message.from.id} who posted following message: ${e.update.message.reply_to_message.text
@@ -79,9 +79,3 @@ export const Report = async (e: Context) =>
   e.reply("A report to the admins was sent successfully!");
   return true;
 }
-
-
-export const getList = async (e: Context) =>
-{
-
-};

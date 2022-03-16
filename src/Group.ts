@@ -1,5 +1,5 @@
 import { Context, InlineKeyboard } from "grammy";
-import {GroupID, VenID, ChannelID, ChannelName, GroupName, BotName, RulesURL} from "./vars.js";
+import {BotName, Groups, RulesURL} from "./vars.js";
 import {bot, log} from "./index";
 import { ReportError } from "./Error";
 
@@ -13,6 +13,7 @@ export const Welcome = async (ctx: Context) => {
     if(ctx.message === undefined) return log(-2);
     if(ctx.message.from === undefined) return log(-3);
     const chat = await ctx.getChat();
+    if(chat.type == "private") return Welcome2(ctx);
     if(chat.type !== "supergroup") return;
     //Check if user is not a bot
     if(ctx.message.from.is_bot === true)
@@ -25,13 +26,73 @@ export const Welcome = async (ctx: Context) => {
     if(user) return ctx.reply(`You already accepted the rules, welcome back ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
     
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", `https://t.me/${BotName}`).row()
-    .text("✅ I accept the rules", "accept").row();
+    .url("📋 Read the rules", `https://t.me/${BotName}`).row();
+
+    const group = Groups.find(x => x.id == chat.id);
+    if(!group) return ctx.reply("This group is not registered in the database, please contact the bot owner");
+    let specialtext = "";
+    if(group.specialRules)
+    {
+        inlineKeyboard.url("📋 Read the special rules", group.specialRules);
+        specialtext = `\n\nOh, it seems that this chat has some special rules/notices, please read them! \n`;
+    }
+
+    inlineKeyboard.text("✅ I accept the rules", "accept").row();
 
     bot.api.restrictChatMember(chat.id, ctx.message.from.id, {can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_send_polls: false});
     //Check if user has a username
-    const message = await ctx.reply(`Welcome to the ${chat.title} chat ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, please make sure to read the rules. You will be able to chat in here once you read them :3\n\n If you have trouble you can use this button right here to accept AFTER you read them\n\nStill having trouble? Send a pm to @Ventox2 ;3`,{reply_to_message_id: ctx.message.message_id, reply_markup: inlineKeyboard});
+    const message = await ctx.reply(`Welcome to the ${chat.title} chat ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, please make sure to read the rules. You will be able to chat in here once you read them :3\n\n If you have trouble you can use this button right here to accept AFTER you read them\n\nStill having trouble? Send a pm to @Ventox2 ;3`+specialtext,{reply_to_message_id: ctx.message.message_id, reply_markup: inlineKeyboard});
     User.set(ctx.message.from.id, chat.id, message.message_id, "pending");
+};
+
+
+export const Welcome2 = async(ctx: Context) => {
+    //This method is called when the user "starts" the bot from private
+    if(ctx === undefined) return log(-1);
+    if(ctx.message === undefined) return log(-2);
+    if(ctx.message.from === undefined) return log(-3);
+    const chat = await ctx.getChat();
+    const pending = getFile("pending").find(x => x.userid == chat.id);
+    if(!pending)
+    {
+        const accepted = getFile("accepted").find(x => x.userid == chat.id);
+        if(accepted) return ctx.reply(`You already accepted the rules, welcome back to ${accepted.group} ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
+        return ctx.reply(`Hmm, it seems like you haven't joined any group...`);
+    }
+
+    const x = Groups.find(x => x.id == pending.groupid);
+    if(!x) return ctx.reply(`Hmm, it seems like you haven't joined any group...`);
+
+    const inlineKeyboard = new InlineKeyboard()
+        .url("📋 Read the rules", `${RulesURL}`).row()
+
+        if(x.specialRules)
+        {
+            inlineKeyboard.url("📋 Read the special rules", `${x.specialRules}`).row();
+            ctx.reply("Oh, it seems that this chat has some special rules/notices, please read them!");
+        }
+        inlineKeyboard.text("✅ I accept the rules", "accept").row();
+        ctx.reply(`Welcome to ${pending.group}, ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, it seems you are new here. Nice to meet you! Before I can let you talk in the group, you have to accept the rules! :p`, {reply_markup: inlineKeyboard});
+    
+};
+
+export const Goodbye = async(ctx: Context) =>
+{
+    if(ctx === undefined) return log(-1);
+    if(ctx.message === undefined) return log(-2);
+    if(ctx.message.from === undefined) return log(-3);
+    const chat = await ctx.getChat();
+
+    const user = User.get(ctx.message.from.id, chat.id, "accepted");
+    if(!user) return;
+    //User.remove(user.userid, chat.id, "accepted");
+
+    bot.api.deleteMessage(chat.id, user.msgid).catch(() => {
+        bot.api.editMessageText(chat.id, user.msgid, `${UserOrName(ctx!.message!.from!.first_name, ctx!.message!.from!.username)} has left the group`).catch(() => {});
+    });
+    
+    ctx.deleteMessage();
+    ctx.reply(`${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} has left our group, sorry to see you go`);
 };
 
 bot.callbackQuery("accept", async ctx => {
@@ -103,6 +164,7 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
         //We need to find out which supergroup the user is in
         // So get all supergroups which the user hasn't accepted yet
         let groups = User.groups(e.from!.id).filter(g => g.accepted === false);
+        console.table(groups);
         groups.forEach(g => {
             let error:{
                 raw: any,
@@ -110,19 +172,22 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
             }[] = [];
             try
             {
-                bot.api.restrictChatMember(g.groupid, uid, {can_send_messages: true, can_send_media_messages: true, can_send_other_messages: true, can_send_polls: true}).catch(err => {
+                bot.api.restrictChatMember(g.groupid, e.from!.id, {can_send_messages: true, can_send_media_messages: true, can_send_other_messages: true, can_send_polls: true}).catch(err => {
+                    console.error(1);
                     error.push({raw: err, message: "I couldn't allow the user to chat in the group"});
                 })
                 bot.api.editMessageText(
                     g.groupid, g.msgid, `✅Thank you ${UserOrName(e.from!.first_name, e.from!.username)} for reading the rules! You are now allowed to talk :3 I hope you have fun here ;3\n\nYou can always read the rules here, they will be updated from time to time`, {reply_markup: markup}).catch(err => {
+                        console.error(2);
                         error?.push({raw: err, message: "I couldn't edit the message"});
                     })
                 
                 bot.api.sendMessage(e.from!.id, `✅Hey ${UserOrName(e.from!.first_name, e.from!.username)}! You are now allowed to talk in the group ${g.group}`).catch(err => {
+                    console.error(3);
                     error?.push({raw: err, message: "I couldn't send a message to you. Did you block me?"});
                 })
-                User.remove(uid, g.groupid, "pending");
-                User.set(uid, g.groupid, g.msgid, "accepted");
+                User.remove(e.from!.id, g.groupid, "pending");
+                User.set(e.from!.id, g.groupid, g.msgid, "accepted");
             }
             catch(err)
             {
@@ -199,22 +264,6 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
     //     .catch(err => { ReportError(err); e.reply(`Couldn't proceed. Report to the admin was sent`); });
 //  });
 };
-
-const getMessageId = async (userid:number) => 
-{
-    let _tmp = await changeList.get(userid);
-    if(_tmp === undefined)
-    {
-      ReportError("getMessageId gab undefined");
-      throw null;
-    }
-    else if (_tmp.length == 0)
-    {
-      ReportError("userid war nicht gespeichert in users.json");
-      throw "The UserID record was not found. The bot didn't record the MessageID and UserID when the user joined";
-    }
-    else return _tmp[_tmp.length-1].msgid;
-}
 
 export const dat = async (Befehl: string, params?: any[]) =>
 {

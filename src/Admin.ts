@@ -3,8 +3,7 @@ import { bot, log } from ".";
 import { ReportError } from "./Error";
 import { dat } from "./Group";
 import {add, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInWeeks, differenceInYears, isBefore} from "date-fns";
-import { getArgs, getWarnList, or, ParseDate, setWarnList, UserOrName } from "./core";
-import { GroupID } from "./vars";
+import { getArgs, getList, or, ParseDate, setList, UserOrName } from "./core";
 import path from "path";
 import fs from "fs";
 import { WarnList, Banned_User } from "./interface";
@@ -26,10 +25,7 @@ export const Ban = async (e: Context, global: boolean) =>
     const userid = e.message.reply_to_message.from.id;
     const message_id = e.message.reply_to_message.message_id;
     
-    // dat(`INSERT INTO banned_users VALUES("${user}", "${userid}", "${chat.id}")`).catch(i => {ReportError(i); });
-    const p = path.join(__dirname, "..", "data", "banned.json");
-    if(!fs.existsSync(p)) fs.writeFileSync(p, JSON.stringify([]));
-    const banned = JSON.parse(fs.readFileSync(p).toString()) as Banned_User[];
+    const banned = getList("banned") as Banned_User[];
     const Banned_User:Banned_User = {
       userid: userid,
       Name: name,
@@ -40,7 +36,7 @@ export const Ban = async (e: Context, global: boolean) =>
     };
 
     banned.push(Banned_User);
-    fs.writeFileSync(p, JSON.stringify(banned));
+    setList("banned", banned);
 
     const User = UserOrName(name, user);
     bot.api.banChatMember(chat.id, userid);
@@ -166,9 +162,8 @@ export const warn = async (e: Context) =>
   let newDate = new Date();
   const _ = or({diff: differenceInMonths(date, newDate), unit: "months"}, {diff: differenceInWeeks(date, newDate), unit: "weeks"}, {diff: differenceInDays(date, newDate), unit: "days"}, {diff: differenceInHours(date, newDate), unit: "hours"}, {diff: differenceInMinutes(date, newDate), unit: "minutes"});
   const User = UserOrName(e.message.reply_to_message.from.first_name, e.message.reply_to_message.from.username)
-  let warnlist = await getWarnList();
+  let warnlist = getList("warn") as WarnList[];
   const userid = e.message.reply_to_message.from.id;
-  const Length = await ParseDate(e.message.text, e.chat.id);
   const Reason = e.message.text.split(" ").slice(2).join(" ");
 
   //Check if user is already warned, if so, add a warning to the user, if not, create a new entry
@@ -180,7 +175,7 @@ export const warn = async (e: Context) =>
       warnlist[i].warnings.push({
         Timestamp: date.toISOString(),
         Reason: Reason,
-        Length: Length.toISOString(),
+        Length: date.toISOString(),
         Exprieable: true
       });
       found = true;
@@ -190,7 +185,7 @@ export const warn = async (e: Context) =>
   if(!found) warnlist.push({userid: userid, warnings: [{
     Timestamp: date.toISOString(),
     Reason: Reason,
-    Length: Length.toISOString(),
+    Length: date.toISOString(),
     Exprieable: true
   }], kicks: 0});
 
@@ -204,7 +199,7 @@ export const warn = async (e: Context) =>
     bot.api.banChatMember(e.chat.id, userid, {until_date: parseInt((date.getTime()/1000).toFixed(0))}).catch(i => {ReportError(i);});
     userwarn.kicks++;
     userwarn.warnings.forEach(i => {i.Exprieable = false});
-    setWarnList(warnlist);
+    setList("warn", warnlist);
     return;
   }
   if(userwarn.warnings.length == 6)
@@ -214,12 +209,12 @@ export const warn = async (e: Context) =>
     bot.api.banChatMember(e.chat.id, userid).catch(i => {ReportError(i);});
     userwarn.kicks++;
     userwarn.warnings.forEach(i => {i.Exprieable = false});
-    setWarnList(warnlist);
+    setList("warn", warnlist);
     return;
   }
   
   if(userwarn.warnings.length == 0) e.reply(`User ${User} recieved their first warning!\n\nThe warning will expire in ${_!.unit} ${_?.unit}!!\n\nReason for the warning: ${Reason}\n\nYou can always check your warnings with /warnings`);
   else e.reply(`User ${User} recieved their ${userwarn.warnings.length}. warning!\n\nThe warning will expire in ${_?.diff} ${_?.unit}!!\n\nReason for the warning: ${Reason}\n\nYou can always check your warnings with /warnings`);
-  setWarnList(warnlist);
+  setList("warn", warnlist);
 }
 

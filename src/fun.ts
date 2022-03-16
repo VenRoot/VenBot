@@ -21,8 +21,8 @@ export const SuckySucky = (e: Context) =>
     if(e.message.from == undefined) return null;
     if(e.message.chat.type != "supergroup") if(e.message.chat.type == "private" && e.message.from.id != VenID) return null;
     const self = e.message.from;
-
-    let phrase = phrases[random(0, phrases.length)];
+    let phrase = phrases[random(0, phrases.length-1)];
+    console.log(phrase, phrases);
     let User = UserOrName(self.first_name, self.username);
     phrase = phrase.replaceAll("$U", User);
     e.reply(phrase, { reply_to_message_id: e.message?.message_id }).catch(e => ReportError(e));
