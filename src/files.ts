@@ -14,7 +14,7 @@ export const getFile = (file: "pending" | "accepted") =>
     return JSON.parse(fs.readFileSync(p, "utf8")) as user[];
 }
 
-export const setFile = (file: "pending" | "accepted", data: user[]) => fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(data));
+export const setFile = (file: "pending" | "accepted", data: user[]) => fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(data, null, 4));
 
 export const User = 
 {

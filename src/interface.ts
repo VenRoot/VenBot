@@ -1,3 +1,5 @@
+import { TGroups } from "./vars";
+
 
 /**
  * @deprecated please use {@link user} instead
@@ -25,8 +27,6 @@ export interface Banned_User
     Date: string;
     Message_ID?: number;
 }
-
-export type TGroups = "Yiff me please~" | "Futa/Herm Yiff" | "Yiff me please~ beta";
 
 export interface WarnList
 {

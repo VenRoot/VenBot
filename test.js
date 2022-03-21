@@ -2,8 +2,6 @@ const mariadb = require('mariadb');
 const dotenv = require('dotenv');
 dotenv.config();
 
-console.log(process.env);
-
 const dat = async (Befehl, params) =>
 {
     let con;
@@ -17,7 +15,7 @@ const dat = async (Befehl, params) =>
         });
     
         con = await pool.getConnection();
-        let result = await con.query(Befehl, params || undefined);
+        let result = await con.query(Befehl, params);
         await pool.end();
         return result;
     }
@@ -30,3 +28,10 @@ const dat = async (Befehl, params) =>
         if(con) con.release();
     }
 }
+
+
+(async () => {
+    let x = await dat("SELECT * FROM accepted");
+    console.log(x);
+})();
+

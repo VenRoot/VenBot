@@ -1,5 +1,5 @@
 import { Context, InlineKeyboard } from "grammy";
-import {BotName, Groups, RulesURL} from "./vars.js";
+import {BetaBotName, BotName, Groups, OwnerAt, RulesURL} from "./vars.js";
 import {bot, log} from "./index";
 import { ReportError } from "./Error";
 
@@ -26,7 +26,7 @@ export const Welcome = async (ctx: Context) => {
     if(user) return ctx.reply(`You already accepted the rules, welcome back ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
     
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", `https://t.me/${BotName}`).row();
+    .url("📋 Read the rules", `https://t.me/${process.env.PRODUCTION == "TRUE" ? BotName : BetaBotName}`).row();
 
     const group = Groups.find(x => x.id == chat.id);
     if(!group) return ctx.reply("This group is not registered in the database, please contact the bot owner");
@@ -41,7 +41,7 @@ export const Welcome = async (ctx: Context) => {
 
     bot.api.restrictChatMember(chat.id, ctx.message.from.id, {can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_send_polls: false});
     //Check if user has a username
-    const message = await ctx.reply(`Welcome to the ${chat.title} chat ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, please make sure to read the rules. You will be able to chat in here once you read them :3\n\n If you have trouble you can use this button right here to accept AFTER you read them\n\nStill having trouble? Send a pm to @Ventox2 ;3`+specialtext,{reply_to_message_id: ctx.message.message_id, reply_markup: inlineKeyboard});
+    const message = await ctx.reply(`Welcome to the ${chat.title} chat ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, please make sure to read the rules. You will be able to chat in here once you read them :3\n\n If you have trouble you can use this button right here to accept AFTER you read them\n\nStill having trouble? Send a pm to ${OwnerAt} ;3`+specialtext,{reply_to_message_id: ctx.message.message_id, reply_markup: inlineKeyboard});
     User.set(ctx.message.from.id, chat.id, message.message_id, "pending");
 };
 
@@ -83,6 +83,17 @@ export const Goodbye = async(ctx: Context) =>
     if(ctx.message.from === undefined) return log(-3);
     const chat = await ctx.getChat();
 
+    let _user = User.get(ctx.message.from.id, chat.id, "pending");
+    if(_user)
+    {
+        //User 
+        User.remove(_user.userid, _user.groupid, "pending");
+        ctx.deleteMessage().catch();
+        bot.api.deleteMessage(chat.id, _user.msgid).catch(() => {
+            bot.api.editMessageText(chat.id, _user!.msgid, `${UserOrName(ctx!.message!.from!.first_name, ctx!.message!.from!.username)} joined and left`).catch(() => {});
+        });
+        return;
+    }
     const user = User.get(ctx.message.from.id, chat.id, "accepted");
     if(!user) return;
     //User.remove(user.userid, chat.id, "accepted");
@@ -155,7 +166,7 @@ bot.callbackQuery("accept", async ctx => {
 
 export const allow = async (e: Context, priv: boolean, button: boolean) => {
     const markup = new InlineKeyboard();
-    markup.url("📋 Read the rules", `https://t.me/${BotName}`);
+    markup.url("📋 Read the rules", `https://t.me/${process.env.PRODUCTION == "TRUE" ? BotName : BetaBotName}`);
     if(e.from === undefined) return log(-1);
     // let _users = await dat("SELECT id from accepted") as number[];
     const chat = await e.getChat();
@@ -198,7 +209,7 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
                 2. I am unable to send you a message\n
                 3. I am unable to edit the message\n
                 \n
-                . A report to @Ventox2 has been sent.\n\n
+                . A report to ${OwnerAt} has been sent.\n\n
                 
                 Here is a more detailed error message: \n
                 ${JSON.stringify(error.map(a => a.message))}`);
@@ -247,7 +258,7 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
     //     if(typeof msgid == null)
     //     {
     //         ReportError("Konnte User nicht freigeben");
-    //         e.reply("There was an error, probably because the welcome message doesn't exist anymore. A report to @Ventox2 got send");
+    //         e.reply("There was an error, probably because the welcome message doesn't exist anymore. A report to ${OwnerAt} got send");
     //         return false;
     //     }
     //     else
@@ -265,6 +276,12 @@ export const allow = async (e: Context, priv: boolean, button: boolean) => {
 //  });
 };
 
+/**
+ * @deprecated please use JSON
+ * @param Befehl 
+ * @param params 
+ * @returns any
+ */
 export const dat = async (Befehl: string, params?: any[]) =>
 {
     let con;
@@ -294,6 +311,6 @@ export const dat = async (Befehl: string, params?: any[]) =>
 
 export const Rules = async (e: Context) => {
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", `https://t.me/${BotName}`).row();
+    .url("📋 Read the rules", `https://t.me/${process.env.PRODUCTION == "TRUE" ? BotName : BetaBotName}`).row();
     e.reply(`Please read the following help here: ${RulesURL}`, {reply_to_message_id: e.message?.message_id, reply_markup: inlineKeyboard}).catch(err => ReportError(err));
 };

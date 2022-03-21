@@ -4,8 +4,7 @@ import { ReportError } from "./Error";
 import { dat } from "./Group";
 import {add, differenceInDays, differenceInHours, differenceInMinutes, differenceInMonths, differenceInWeeks, differenceInYears, isBefore} from "date-fns";
 import { getArgs, getList, or, ParseDate, setList, UserOrName } from "./core";
-import path from "path";
-import fs from "fs";
+import {Temporal} from "@js-temporal/polyfill";
 import { WarnList, Banned_User } from "./interface";
 
 export const Ban = async (e: Context, global: boolean) => 
@@ -105,11 +104,9 @@ export const Mute = async (e: Context) =>
   if(!(await checkAdmin(e).catch(e => ReportError(e)))) return;
   const args = getArgs(e);
   if(args == null) return null;
-  if(e.message === undefined) return null;
-  if(e.message.text === undefined) return null;
-  if(e.message.from === undefined) return null;
-  if(e.message.reply_to_message === undefined) return null;
-  if(e.message.reply_to_message.from === undefined) return null;
+  if(e.message?.text === undefined) return null;
+  if(e.message?.from === undefined) return null;
+  if(e.message?.reply_to_message?.from === undefined) return null;
   if(e.chat === undefined) return null;
   if(e.chat.type != "supergroup") return null;
   if(args.length < 2) return e.reply("Please specify a time and a reason");

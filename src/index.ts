@@ -16,8 +16,8 @@ log("Starting Bot");
 
 export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
-import {uwu, Pog, owo, Distract, Doubt, rr, SuckySucky, Bish} from "./fun";
-import { Channels, Groups, VenID } from "./vars";
+import {u, Pog, o, Distract, Doubt, rr, RandomMessage, B} from "./fun";
+import { Channels, Commands, Groups, OwnerAt, VenID } from "./vars";
 import {allow, Rules, Welcome, Goodbye} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
@@ -45,24 +45,7 @@ bot.on(":left_chat_member", ctx => Goodbye(ctx));
 import * as pack from "../package.json";
 import {SchedeuledMsg } from "./vars";
 
-bot.api.setMyCommands([
-  { command: "start", description: "Start the bot" },
-  { command: "help", description: "Show useful information" },
-  { command: "rules", description: "Read the rules" },
-  { command: "report", description: "Report a user (only works in group)" },
-  { command: "accept", description: "Accept the rules" },
-  { command: "donate", description: "Buy me a coffee :3" },
-  { command: "version", description: "Get bot version" },
-  { command: "doubt", description: "Send doubt meme" },
-  { command: "distract", description: "Send distract meme" },
-  { command: "rr", description: "You know exactly what that is" },
-  { command: "owo", description: "Send a fun message" },
-  { command: "pog", description: "Send pog meme" },
-  { command: "uwu", description: "Surprise (only works in group)" },
-  { command: "sucky", description: "Try this command in the group" },
-  { command: "ping", description: "PONG" }
-
-]);
+bot.api.setMyCommands(Commands);
 
 
 
@@ -76,18 +59,18 @@ bot.command("version", (async (ctx) => ctx.reply(`Version: ${pack.version}\nLice
 bot.command("doubt", e => Doubt(e));
 bot.command("distract", e => Distract(e));
 bot.command("rr", e => rr(e));
-bot.command("owo", e => owo(e));
+bot.command("owo", e => o(e));
 bot.command(["pog", "Pog", "poggers", "Poggers"], e => Pog(e));
-bot.command("uwu", e => uwu(e));
-bot.command("sucky", e => SuckySucky(e));
-bot.command("why", e => Bish(e));
+bot.command("uwu", e => u(e));
+bot.command("random", e => RandomMessage(e));
+bot.command("why", e => B(e));
 
 
 bot.command("ban", e => Ban(e, false));
 bot.command("uptime", e => e.reply(`The bot has been running for ${Math.floor(process.uptime() / 60)} minutes (${process.uptime()} milliseconds).`));
 bot.command("mute", e => Mute(e));
 bot.command("unmute", e => Unmute(e));
-bot.command("getArgs", async e => e.reply(await getArgs(e)?.join(" | ") || "Keine Args"));
+bot.command("getArgs", e => e.reply(getArgs(e)?.join(" | ") || "Keine Args"));
 // bot.command("list", e => getList(e));
 bot.command("ping", e => e.reply("pong"));
 bot.command("warn", e => warn(e));
@@ -99,7 +82,7 @@ const Help = async (e: Context) => {
     if(e.chat === undefined) return;
     if(e.chat.type != "private") return;
 
-    let text = "This is a new version of the Group-Management Bot made by @Ventox2!\n\nThis bot uses TypeScript and grammY, running on a NodeJS Engine. The Code will be avaiable on GitHub: https://github.com/VenRoot/VenBot";
+    let text = `This is a new version of the Group-Management Bot made by ${OwnerAt}!\n\nThis bot uses TypeScript and grammY, running on a NodeJS Engine. The Code will be avaiable on GitHub: https://github.com/VenRoot/VenBot`;
     e.reply(text);
 };
 
