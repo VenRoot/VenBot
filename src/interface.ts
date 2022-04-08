@@ -18,6 +18,12 @@ export interface user
     group: TGroups
 }
 
+export interface tinyUser
+{
+    userid: number;
+    groupid: number;
+}
+
 export interface Banned_User
 {
     userid: number;

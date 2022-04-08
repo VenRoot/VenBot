@@ -16,12 +16,12 @@ log("Starting Bot");
 
 export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
-import {u, Pog, o, Distract, Doubt, rr, RandomMessage, B} from "./fun";
+import {u, Pog, o, Distract, Doubt, rr, RandomMessage, B, Ship} from "./fun";
 import { Channels, Commands, Groups, OwnerAt, VenID } from "./vars";
-import {allow, Rules, Welcome, Goodbye} from "./Group";
+import {allow, Rules, Welcome, Goodbye, checkMsg} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
-import {getArgs} from "./core";
+import {addUser, getArgs} from "./core";
 import {Report, Warnings} from "./User";
 import { ReportError } from "./Error";
 
@@ -40,6 +40,12 @@ bot.start({drop_pending_updates: true, onStart: () => {
 bot.on(":new_chat_members", ctx => Welcome(ctx));
 
 bot.on(":left_chat_member", ctx => Goodbye(ctx));
+
+bot.on("message", async (ctx, next) => {
+  checkMsg(ctx);
+  if(!ctx.from.is_bot) addUser(ctx);
+  await next();
+});
 
 //@ts-ignore
 import * as pack from "../package.json";
@@ -64,6 +70,7 @@ bot.command(["pog", "Pog", "poggers", "Poggers"], e => Pog(e));
 bot.command("uwu", e => u(e));
 bot.command("random", e => RandomMessage(e));
 bot.command("why", e => B(e));
+bot.command("ship", e => Ship(e));
 
 
 bot.command("ban", e => Ban(e, false));

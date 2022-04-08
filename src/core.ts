@@ -1,5 +1,5 @@
 import {Context} from "grammy";
-import { Banned_User, WarnList } from "./interface";
+import { Banned_User, tinyUser, WarnList } from "./interface";
 import fs from "fs";
 import { add, differenceInYears } from "date-fns";
 import { bot } from ".";
@@ -24,16 +24,39 @@ export const getWarnList = () => JSON.parse(fs.readFileSync(path.join(__dirname,
  */
 export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "warn.json"), JSON.stringify(list));
 
-export const getList = (list: "warn" | "banned"): Banned_User[] | WarnList[] =>
+export const getList = (list: "warn" | "banned" | "user"): Banned_User[] | WarnList[] | tinyUser[] =>
 {
     let p = path.join(__dirname, "..", list + ".json");
     if(!fs.existsSync(p)) fs.writeFileSync(p, "[]");
     return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-export const setList = (list: "warn" | "banned", data: Banned_User[] | WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", list + ".json"), JSON.stringify(data));
+export const setList = (list: "warn" | "banned" | "user", data: Banned_User[] | WarnList[] | tinyUser[]) => fs.writeFileSync(path.join(__dirname, "..", list + ".json"), JSON.stringify(data));
 
-export const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+/**
+ * 
+ * @param min minimal value
+ * @param max maximum value
+ * @param exclude array of numbers to exclude 
+ * @returns a random number
+ */
+export const random = (min: number, max: number, exclude?: number[]) => 
+{
+    if(exclude?.length == max) return exclude[Math.floor(Math.random() * exclude.length)];
+    let r = Math.floor(Math.random() * (max - min + 1)) + min;
+    while(exclude?.includes(r)) r = Math.floor(Math.random() * (max - min + 1)) + min;
+    return r;
+}
+export const addUser = async (e: Context) => {
+    let chat = await e.getChat();
+    if(!e.from) return;
+    if(chat.type != "supergroup") return;
+    
+    let list = getList("user") as tinyUser[];
+    if(list.find(i => i.userid == e.from!.id && i.groupid == chat.id)) return;
+    list.push({userid: e.from.id, groupid: chat.id});
+    setList("user", list);
+};
 
 export const ParseDate = async(date: string, chat: number) =>
 {

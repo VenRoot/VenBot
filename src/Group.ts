@@ -1,5 +1,5 @@
 import { Context, InlineKeyboard } from "grammy";
-import {BetaBotName, BotName, Groups, OwnerAt, RulesURL} from "./vars.js";
+import {BetaBotName, BotName, Communities, Groups, OwnerAt, RulesURL} from "./vars.js";
 import {bot, log} from "./index";
 import { ReportError } from "./Error";
 
@@ -75,6 +75,43 @@ export const Welcome2 = async(ctx: Context) => {
         ctx.reply(`Welcome to ${pending.group}, ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)}, it seems you are new here. Nice to meet you! Before I can let you talk in the group, you have to accept the rules! :p`, {reply_markup: inlineKeyboard});
     
 };
+
+/**
+ * Bots sollten nicht chatten dürfen, es sei denn, sie sind Admins
+ * Channels und Gruppen dürfen nicht chatten, es sei denn, sie sind in der Communities Liste
+ */
+export const checkMsg = async (ctx: Context) =>{
+    if(ctx?.message?.from == undefined) return;
+    const chat = await ctx.getChat();
+    if(chat.type !== "supergroup") return;
+
+    let user = ctx.message.from;
+    let[member, admins] = await Promise.all([ctx.getChatMember(user.id), ctx.getChatAdministrators()]);
+    if(admins.includes(member)) return;
+
+    
+    let currentChat = Communities.find(x => x.id == chat.id)
+    if(currentChat) return;
+    let Groups = Communities.find(x => x.id == user.id);
+    if(Groups != undefined) return;
+    if(!t.getTimeout()) ctx.reply("Sending messages as a non-user is currently not allowed");
+    ctx.deleteMessage().catch(() => {
+
+    } )
+} 
+
+
+const t ={
+    timeout: false,
+    //Make a set method for this
+    getTimeout() {
+        if(this.timeout) return true;
+        this.timeout = true;
+        return false;
+    } 
+}
+
+setInterval(() =>t.timeout = false, 1000 * 60 * 5);
 
 export const Goodbye = async(ctx: Context) =>
 {
