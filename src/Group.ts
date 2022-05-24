@@ -1,5 +1,5 @@
 import { Context, InlineKeyboard } from "grammy";
-import {BetaBotName, BotName, Communities, Groups, OwnerAt, RulesURL} from "./vars.js";
+import {BetaBotName, BotName, Communities, Groups, OwnerAt, RulesURL} from "./vars";
 import {bot, log} from "./index";
 import { ReportError } from "./Error";
 

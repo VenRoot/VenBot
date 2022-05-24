@@ -17,7 +17,7 @@ log("Starting Bot");
 export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
 import {u, Pog, o, Distract, Doubt, rr, RandomMessage, B, Ship} from "./fun";
-import { Channels, Commands, Groups, OwnerAt, VenID } from "./vars";
+import { Channels, Commands, Communities, Groups, OwnerAt, VenID } from "./vars.js";
 import {allow, Rules, Welcome, Goodbye, checkMsg} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
@@ -49,7 +49,7 @@ bot.on("message", async (ctx, next) => {
 
 //@ts-ignore
 import * as pack from "../package.json";
-import {SchedeuledMsg } from "./vars";
+import {SchedeuledMsg } from "./vars.js";
 
 bot.api.setMyCommands(Commands);
 
@@ -98,22 +98,35 @@ const Help = async (e: Context) => {
 process.on('uncaughtException', err => {
 	console.error(err);
     ReportError(JSON.stringify(err));
+});
+
+if(process.env.PRODUCTION == "TRUE")
+{
+  s.scheduleJob('0 */12 * * *', () => {
+    const markup = new InlineKeyboard()
+    .url("Join now!", Groups[0].link).row();
+     bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
   });
-
-  if(process.env.PRODUCTION == "TRUE")
-  {
-    s.scheduleJob('0 */12 * * *', () => {
-      const markup = new InlineKeyboard()
-      .url("Join now!", Groups[0].link).row();
-       bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
-    });
-    
-    s.scheduleJob('0 */6 * * *', () =>{
-      let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
-      bot.api.sendMessage(Groups[0].id, msg);
-    });
-  }
   
-  
+  s.scheduleJob('0 */6 * * *', () =>{
+    let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
+    bot.api.sendMessage(Groups[0].id, msg);
+  });
+}
 
 
+export const sendDeadManSwitch = (days: number) => {
+  Communities.forEach(c => {
+    if(days == 3)
+    {
+      bot.api.sendMessage(c.id, "[DMS] WARNING! This is Vens dead-man-switch. It checks every day, if Ven's devices, like his PC, Laptop and phone are online. If not, the bot will warn the group and his friends. Ven wasn't online for 25 days now. If the counter reaches a certain point, more people will be informed. After 60 days, all data of him (including the bot and this group) will get wiped!");
+    }
+    // bot.api.sendMessage(c.id, `[DMS] Ven has has been unreachable on all of his devices for ${days} days!`);
+    if(days == 7)
+    {
+      // bot.api.sendMessage(c.id, ``);
+    }
+  })
+}
+
+sendDeadManSwitch(3);
