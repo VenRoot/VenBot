@@ -86,8 +86,8 @@ export const checkMsg = async (ctx: Context) =>{
     if(chat.type !== "supergroup") return;
 
     let user = ctx.message.from;
-    let[member, admins] = await Promise.all([ctx.getChatMember(user.id), ctx.getChatAdministrators()]);
-    if(admins.includes(member)) return;
+    let member = await ctx.getChatMember(user.id);
+    if(member.status !== "administrator" && member.status !== "creator") return;
 
     
     let currentChat = Communities.find(x => x.id == chat.id)
@@ -203,7 +203,7 @@ bot.callbackQuery("accept", async ctx => {
 
 export const allow = async (e: Context, priv: boolean, button: boolean) => {
     const markup = new InlineKeyboard();
-    markup.url("📋 Read the rules", `https://t.me/${process.env.PRODUCTION == "TRUE" ? BotName : BetaBotName}`);
+    markup.url("📋 Read the rules", `https://t.me/${bot.botInfo.username}`);
     if(e.from === undefined) return log(-1);
     // let _users = await dat("SELECT id from accepted") as number[];
     const chat = await e.getChat();
@@ -348,6 +348,6 @@ export const dat = async (Befehl: string, params?: any[]) =>
 
 export const Rules = async (e: Context) => {
     const inlineKeyboard = new InlineKeyboard()
-    .url("📋 Read the rules", `https://t.me/${process.env.PRODUCTION == "TRUE" ? BotName : BetaBotName}`).row();
+    .url("📋 Read the rules", `https://t.me/${bot.botInfo.username}`).row();
     e.reply(`Please read the following help here: ${RulesURL}`, {reply_to_message_id: e.message?.message_id, reply_markup: inlineKeyboard}).catch(err => ReportError(err));
 };

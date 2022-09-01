@@ -11,6 +11,6 @@ process.on('uncaughtException', (err: Context) => {
 
 export const ReportError = (e: Context|string) =>
 {
-  console.warn("Error wird geworfen", e);
+  console.error(new Date() +": Error wird geworfen", e);
   bot.api.sendMessage(VenID, JSON.stringify(e));
 }

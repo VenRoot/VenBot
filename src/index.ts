@@ -116,7 +116,8 @@ if(process.env.PRODUCTION == "TRUE")
 
 
 export const sendDeadManSwitch = (days: number) => {
-  Communities.forEach(c => {
+return;  
+Communities.forEach(c => {
     if(days == 3)
     {
       bot.api.sendMessage(c.id, "[DMS] WARNING! This is Vens dead-man-switch. It checks every day, if Ven's devices, like his PC, Laptop and phone are online. If not, the bot will warn the group and his friends. Ven wasn't online for 25 days now. If the counter reaches a certain point, more people will be informed. After 60 days, all data of him (including the bot and this group) will get wiped!");
@@ -129,4 +130,4 @@ export const sendDeadManSwitch = (days: number) => {
   })
 }
 
-sendDeadManSwitch(3);
+//sendDeadManSwitch(3);
