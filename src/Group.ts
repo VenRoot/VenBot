@@ -108,24 +108,25 @@ export const checkMsg = async (ctx: Context) =>{
     if(currentChat) return;
     let Groups = Communities.find(x => x.id == user.id);
     if(Groups != undefined) return;
-    if(!t.getTimeout()) ctx.reply("Sending messages as a non-user is currently not allowed");
+    // // if(!t.getTimeout()) ctx.reply("Sending messages as a non-user is currently not allowed");
+    ctx.reply("Sending messages as a bot is currently not allowed");
     ctx.deleteMessage().catch(() => {
 
     } )
 } 
 
 
-const t ={
-    timeout: false,
-    //Make a set method for this
-    getTimeout() {
-        if(this.timeout) return true;
-        this.timeout = true;
-        return false;
-    } 
-}
+// // const t ={
+// //     timeout: false,
+// //     //Make a set method for this
+// //     getTimeout() {
+// //         if(this.timeout) return true;
+// //         this.timeout = true;
+// //         return false;
+// //     } 
+// // }
 
-setInterval(() =>t.timeout = false, 1000 * 60 * 5);
+// // setInterval(() => t.timeout = false, 1000 * 60 * 5);
 
 export const Goodbye = async(ctx: Context) =>
 {
