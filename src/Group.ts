@@ -5,7 +5,7 @@ import { ReportError } from "./Error";
 
 import mariadb from "mariadb";
 import { UserOrName } from "./core";
-import { getFile, User } from "./files.js";
+import { getFile, setFile, User } from "./files.js";
 import { changeList, usersWhoNeedToAccept } from "./obsolete.js";
 
 export const Welcome = async (ctx: Context) => {
@@ -55,13 +55,27 @@ export const Welcome2 = async(ctx: Context) => {
     const pending = getFile("pending").find(x => x.userid == chat.id);
     if(!pending)
     {
-        const accepted = getFile("accepted").find(x => x.userid == chat.id);
-        if(accepted) return ctx.reply(`You already accepted the rules, welcome back to ${accepted.group} ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
-        return ctx.reply(`Hmm, it seems like you haven't joined any group...`);
+        // const accepted = getFile("accepted").find(x => x.userid == chat.id);
+        // if(accepted) return ctx.reply(`You already accepted the rules, welcome back to ${accepted.group} ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
+        // return ctx.reply(`Hmm, it seems like you haven't joined any group...`);
+
+        return ctx.reply("You are not on a pending list. Either you haven't joined any group or you already accepted the rules");
     }
 
     const x = Groups.find(x => x.id == pending.groupid);
     if(!x) return ctx.reply(`Hmm, it seems like you haven't joined any group...`);
+
+    const accepted = getFile("accepted").find(x => x.userid == chat.id);
+    if(accepted) 
+    {
+        //Remove the user from the pending list
+        const pending2 = getFile("pending");
+        const index = pending2.findIndex(x => x.userid == chat.id);
+        if(index !== -1) pending2.splice(index, 1);
+        setFile("pending", pending2);
+        
+        return ctx.reply(`You already accepted the rules, welcome back, ${UserOrName(ctx.message.from.first_name, ctx.message.from.username)} :p`);
+    }
 
     const inlineKeyboard = new InlineKeyboard()
         .url("📋 Read the rules", `${RulesURL}`).row()
