@@ -17,7 +17,7 @@ log("Starting Bot");
 export const bot = new Bot(process.env.PRODUCTION == "TRUE" ? process.env.BOT_TOKEN! : process.env.BOT_TOKEN_BETA!);
 
 import {u, Pog, o, Distract, Doubt, rr, RandomMessage, B, Ship} from "./fun";
-import { Channels, Commands, Communities, Groups, OwnerAt, VenID } from "./vars.js";
+import { Channels, Commands, Communities, Groups, newGroup, OwnerAt, VenID } from "./vars.js";
 import {allow, Rules, Welcome, Goodbye, checkMsg} from "./Group";
 import {Ban, Mute, Unmute, warn} from "./Admin";
 import {donate} from "./stuff"
@@ -104,7 +104,8 @@ if(process.env.PRODUCTION == "TRUE")
 {
   s.scheduleJob('0 */12 * * *', () => {
     const markup = new InlineKeyboard()
-    .url("Join now!", Groups[0].link).row();
+    .url("Join now!", Groups[0].link).row()
+    .url("Join our new chat~", newGroup).row();
      bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
   });
   
