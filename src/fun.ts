@@ -2,7 +2,7 @@ import { Context, InputFile } from "grammy";
 import path from "path";
 import { ReportError } from "./Error";
 import {getList, random, UserOrName} from "./core";
-const mediapath = path.join(__dirname, "..", "media");
+const mediapath = path.join(__dirname, "..", "data", "media");
 import {bot} from "./index";
 import { VenID, phrases, Phrase1, _o, Phrase2, ships } from "./vars.js";
 import { tinyUser } from "./interface";

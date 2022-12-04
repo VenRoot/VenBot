@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  Bot:
+    image: server.de:443/venbot:latest
+    container_name: VenBot
+    restart: always
+    volumes:
+      - vendata:/app/data
+
+volumes:
+  vendata:

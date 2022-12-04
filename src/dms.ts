@@ -11,7 +11,7 @@ interface devices
 }
 
 
-const device = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "devices.json"), "utf8")) as devices;
+const device = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "devices.json"), "utf8")) as devices;
 
 const options: SecureServerOptions = 
 {

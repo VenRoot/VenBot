@@ -102,14 +102,14 @@ process.on('uncaughtException', err => {
 
 if(process.env.PRODUCTION == "TRUE")
 {
-  s.scheduleJob('0 */12 * * *', () => {
+  s.scheduleJob('0 */24 * * *', () => {
     const markup = new InlineKeyboard()
     .url("Join now!", Groups[0].link).row()
     .url("Join our new chat~", newGroup).row();
      bot.api.sendMessage(Channels[0].id, SchedeuledMsg, {reply_markup: markup});
   });
   
-  s.scheduleJob('0 */6 * * *', () =>{
+  s.scheduleJob('0 */12 * * *', () =>{
     let msg = "Seeing inappropiate messages or media? Someone trolling, breaking the rules or disturbing the peace?\n\nReply to their message with /report and the admins will take care of it as soon as possible!";
     bot.api.sendMessage(Groups[0].id, msg);
   });

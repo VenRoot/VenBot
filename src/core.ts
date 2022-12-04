@@ -15,23 +15,23 @@ export const or = (
  * 
  * @deprecated please use {@link getList} instead
  */
-export const getWarnList = () => JSON.parse(fs.readFileSync(path.join(__dirname, "..", "warn.json"), "utf8")) as WarnList[];
+export const getWarnList = () => JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "warn.json"), "utf8")) as WarnList[];
 
 /**
  * 
  * @param list 
  * @deprecated please use {@link setList} instead
  */
-export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "warn.json"), JSON.stringify(list));
+export const setWarnList = (list: WarnList[]) => fs.writeFileSync(path.join(__dirname, "..", "data", "warn.json"), JSON.stringify(list));
 
 export const getList = (list: "warn" | "banned" | "user"): Banned_User[] | WarnList[] | tinyUser[] =>
 {
-    let p = path.join(__dirname, "..", list + ".json");
+    let p = path.join(__dirname, "..", "data", list + ".json");
     if(!fs.existsSync(p)) fs.writeFileSync(p, "[]");
     return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-export const setList = (list: "warn" | "banned" | "user", data: Banned_User[] | WarnList[] | tinyUser[]) => fs.writeFileSync(path.join(__dirname, "..", list + ".json"), JSON.stringify(data));
+export const setList = (list: "warn" | "banned" | "user", data: Banned_User[] | WarnList[] | tinyUser[]) => fs.writeFileSync(path.join(__dirname, "..", "data", list + ".json"), JSON.stringify(data));
 
 /**
  * 

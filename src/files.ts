@@ -7,14 +7,14 @@ import { Groups } from "./vars";
 export const getFile = (file: "pending" | "accepted") =>
 {
     let p!:string;
-    if(file === "pending") p = path.join(__dirname, "..", "pending.json");
-    if(file === "accepted") p = path.join(__dirname, "..", "accepted.json");
+    if(file === "pending") p = path.join(__dirname, "..", "data", "pending.json");
+    if(file === "accepted") p = path.join(__dirname, "..", "data", "accepted.json");
     if(!fs.existsSync(p)) fs.writeFileSync(p, "[]");
     
     return JSON.parse(fs.readFileSync(p, "utf8")) as user[];
 }
 
-export const setFile = (file: "pending" | "accepted", data: user[]) => fs.writeFileSync(path.join(__dirname, "..", file + ".json"), JSON.stringify(data, null, 4));
+export const setFile = (file: "pending" | "accepted", data: user[]) => fs.writeFileSync(path.join(__dirname, "..", "data", file + ".json"), JSON.stringify(data, null, 4));
 
 export const User = 
 {

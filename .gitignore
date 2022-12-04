@@ -5,6 +5,7 @@
 
 *.json
 media/*
+data/
 vars.ts
 
 ### Node ###
