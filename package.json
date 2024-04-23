@@ -8,7 +8,7 @@
         "dotenv": "^16.0.0",
         "grammy": "^1.7.0",
         "mariadb": "^3.0.2",
-        "mysql2": "^2.3.3",
+        "mysql2": "^3.9.7",
         "node-schedule": "^2.1.0"
     },
     "devDependencies": {
